@@ -22,7 +22,7 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Build Project and Sync Capacitor
+      - name: Build Project and Prepare Android
         run: |
           TARGET_DIR=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \;)
           echo "Project directory is: $TARGET_DIR"
@@ -30,7 +30,13 @@ jobs:
 
           npm install
           npm run build
-          npx cap sync android || true
+          
+          # تثبيت Capacitor Android وإنشاء مجلد أندرويد إن لم يكن موجوداً
+          npm install @capacitor/android @capacitor/core @capacitor/cli
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+          npx cap sync android
 
       - name: Build Android APK
         run: |
@@ -42,7 +48,7 @@ jobs:
             chmod +x gradlew
             ./gradlew assembleDebug
           else
-            echo "Android folder not found!"
+            echo "Android folder build failed!"
             exit 1
           fi
 
