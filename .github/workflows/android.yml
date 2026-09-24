@@ -16,37 +16,33 @@ jobs:
         with:
           node-version: 18
 
-      - name: Build Project and APK
-        run: |
-          # البحث عن مكان ملف package.json والجمود عنده
-          TARGET_DIR=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \;)
-          echo "Project directory is: $TARGET_DIR"
-          cd "$TARGET_DIR"
-
-          # تثبيت المكتبات وبناء المشروع
-          npm install
-          npm run build
-
-          # إعداد مجلد أندرويد وتزامن كاباسيتور
-          npx cap sync android || true
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Build Project and Sync Capacitor
+        run: |
+          TARGET_DIR=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \;)
+          echo "Project directory is: $TARGET_DIR"
+          cd "$TARGET_DIR"
+
+          npm install
+          npm run build
+          npx cap sync android || true
 
       - name: Build Android APK
         run: |
           TARGET_DIR=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \;)
           cd "$TARGET_DIR"
+          
           if [ -d "android" ]; then
-            cd android && ./gradlew assembleDebug
+            cd android
+            chmod +x gradlew
+            ./gradlew assembleDebug
           else
-            echo "Android directory not found!"
+            echo "Android folder not found!"
             exit 1
           fi
 
