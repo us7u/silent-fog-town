@@ -14,7 +14,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -31,7 +31,6 @@ jobs:
           npm install
           npm run build
           
-          # تثبيت Capacitor Android وإنشاء مجلد أندرويد إن لم يكن موجوداً
           npm install @capacitor/android @capacitor/core @capacitor/cli
           if [ ! -d "android" ]; then
             npx cap add android
